@@ -1,6 +1,6 @@
 // src/pages/stock/add/AddProductScreen.tsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../redux/store';
 import { addProduct, fetchProducts, resetAddSuccess } from '../../redux/slices/stockSlice';
 import { selectAddSuccess, selectAddStatus, selectIsAdding, selectStockError } from '../../redux/selectors/stock.selector';
@@ -9,11 +9,31 @@ import { FaSave, FaTimes, FaEuroSign, FaTruck, FaUser, FaPhone, FaIdCard, FaEnve
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import './add.css';
+import BASE_URL from '../../config/ApiConfig';
+import {
+  LuInfo,
+} from 'react-icons/lu';
+
+interface Unite {
+  id: number;
+  name_unit: string;
+  symbol: string;
+  type_unit: string;
+  base_unit: string;
+  value_conversion_unit: number
+}
 
 export default function AddProductScreen() {
+  const { id } = useParams<{ id: string }>();
+  const { token, user } = useAuth();
+
+  useEffect(() => {
+    if (!token) return;
+    fetchUnits();
+  }, [token]);
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { user, token } = useAuth();
 
   const addSuccess = useAppSelector(selectAddSuccess);
   const addStatus = useAppSelector(selectAddStatus);
@@ -25,6 +45,9 @@ export default function AddProductScreen() {
   const [paymentMode, setPaymentMode] = useState<'CASH' | 'CREDIT' | 'BANK' | 'MOBILE_MONEY' | 'CHECK'>('CASH');
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [units, setUnits] = useState<Unite[]>([]);
+
+  const [idUnite, setIdUnite] = useState<number | null>(null);
 
   const [form, setForm] = useState({
     numero: '',
@@ -49,6 +72,32 @@ export default function AddProductScreen() {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
+  const fetchUnits = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/stock/units`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) return;
+
+      const response = await res.json();
+
+      console.log("units response =", response);
+
+      const unitsData = response.data ?? response;
+
+      setUnits(unitsData);
+
+      if (unitsData.length > 0 && idUnite === null) {
+        setIdUnite(unitsData[0].id);
+      }
+    } catch (err) {
+      console.error("Erreur fetchUnits:", err);
+    }
+  };
+
   const isFormValid = () =>
     form.numero.trim() &&
     form.nom.trim() &&
@@ -60,7 +109,8 @@ export default function AddProductScreen() {
     form.nom_fournisseur.trim() &&
     form.telephone_fournisseur.trim() &&
     form.nif.trim() &&
-    form.stat.trim();
+    form.stat.trim() &&
+    idUnite !== null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,8 +147,10 @@ export default function AddProductScreen() {
       nif: form.nif,
       stat: form.stat,
       email_fournisseur: form.email_fournisseur,
+      idUnite: Number(idUnite),
     };
-
+    console.log("DATA ENVOYÉ =", data);
+    console.log("idUnite state =", idUnite);
     dispatch(addProduct({ data, token }));
   };
 
@@ -146,6 +198,7 @@ export default function AddProductScreen() {
         ['Email', form.email_fournisseur],
         ['Paiement', paymentMode],
         ['Finalité', fpMode ? 'Produit à vendre' : 'Matière première'],
+        ['Unité', idUnite],
       ],
       startY: 30,
       theme: 'grid',
@@ -199,6 +252,28 @@ export default function AddProductScreen() {
         <div className="input-group">
           <label>Prix de vente <FaEuroSign /></label>
           <input type="number" min="0" value={form.vente} onChange={e => handleChange('vente', e.target.value)} placeholder="Prix de vente (optionnel)" />
+        </div>
+
+        <div className="input-group">
+          <label>Unité *</label>
+          {units.length > 0 ? (
+            <select
+              id="unite"
+              value={idUnite ?? ''}
+              onChange={e => setIdUnite(Number(e.target.value))}
+              required
+              style={{ width: '100%', padding: '12px 16px', border: '2px solid #e0e0e0', borderRadius: '12px', fontSize: '14px' }}
+            >
+            <option value="" disabled>Sélectionner une unité</option>
+            {units.map(u => (
+              <option key={u.id} value={u.id}>{u.symbol}</option>
+            ))}
+            </select>
+          ) : (
+          <div className="info-text warning">
+            <LuInfo size={14} /> Aucun Unité disponible. Créez-en un depuis la gestion des Unités.
+          </div>
+          )}
         </div>
 
         <div className="input-group">

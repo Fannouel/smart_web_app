@@ -62,6 +62,7 @@ export interface Produit {
   quantite: number;
   transport?: number; // Optionnel car présent dans la réponse
   idEntreprise: number;
+  idUnite: number;
   paiement?: string; // Optionnel car présent dans la réponse
   timestamp?: string; // Optionnel car présent dans la réponse
 }

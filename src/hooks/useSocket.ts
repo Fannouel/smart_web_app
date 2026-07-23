@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 
-const SOCKET_URL = 'http://localhost:3000';  // ← URL directe, pas de proxy
+const SOCKET_URL = import.meta.env.VITE_API_URL || "https://api.societesmartbusiness.com/";  // ← URL directe, pas de proxy
 
 let socketInstance: Socket | null = null;
 

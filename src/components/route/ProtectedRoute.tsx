@@ -94,7 +94,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
   // Rediriger vers login si non authentifié ou token invalide
   if (!isAuthenticated || !isTokenValid) {
-    return <Navigate to="/" state={{ from: location }} replace />;
+    return <Navigate to="/admin" state={{ from: location }} replace />;
   }
 
   // Vérifier les rôles si nécessaire
