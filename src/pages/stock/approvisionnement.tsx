@@ -66,7 +66,7 @@ export default function ReapprovisionnerScreen() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
-
+  const [idUniteEntree, setIdUniteEntree] = useState<number | null>(null);
   // Champs du formulaire
   const [quantite, setQuantite] = useState<number>(1);
   const [prixAchat, setPrixAchat] = useState<number>(0);
@@ -94,6 +94,7 @@ export default function ReapprovisionnerScreen() {
       const data: ProduitById = await res.json();
       setProduct(data);
       setPrixAchat(data.prixAchat);
+      setIdUniteEntree(data.idUnite); // ✅ ajouté
       // Présélectionner le premier entrepôt connu du produit
       if (data.Stock && data.Stock.length > 0) {
         setIdEntrepot(data.Stock[0].entrepot.id);
@@ -127,12 +128,13 @@ export default function ReapprovisionnerScreen() {
     if (quantite <= 0) { setError('La quantité doit être supérieure à 0'); return; }
     if (prixAchat <= 0) { setError("Le prix d'achat doit être supérieur à 0"); return; }
     if (!idEntrepot) { setError("Veuillez sélectionner un entrepôt"); return; }
+    if (!idUniteEntree) { setError("Unité introuvable pour ce produit"); return; }
     setError(null);
     setShowConfirmation(true);
   };
 
   const confirmReappro = async () => {
-    if (!token || !id || !product || !idEntrepot) return;
+    if (!token || !id || !product || !idEntrepot || !idUniteEntree) return;
     setSubmitting(true);
     setError(null);
 
@@ -150,6 +152,7 @@ export default function ReapprovisionnerScreen() {
           prixAchat,
           transport,
           method,
+          idUniteEntree, // ✅ ajouté
         }),
       });
 
@@ -304,7 +307,7 @@ export default function ReapprovisionnerScreen() {
         {/* Quantité */}
         <div className="form-group">
           <label htmlFor="quantite">
-            Quantité à approvisionner <span className="required">*</span>
+            Quantité à approvisionner {product?.unite?.symbol && `(${product.unite.symbol})`} <span className="required">*</span>
           </label>
           <div className="quantity-input">
             <button type="button" onClick={decrementQuantite} className="quantity-btn" disabled={quantite <= 1}>
@@ -341,7 +344,7 @@ export default function ReapprovisionnerScreen() {
               onChange={e => setPrixAchat(Math.max(0, parseInt(e.target.value) || 0))}
               min="0"
               required
-              step="100"
+              step="1"
             />
           </div>
           {isAdmin && prixAchat !== product?.prixAchat && (
@@ -362,7 +365,7 @@ export default function ReapprovisionnerScreen() {
               value={transport}
               onChange={e => setTransport(Math.max(0, parseInt(e.target.value) || 0))}
               min="0"
-              step="100"
+              step="1"
             />
           </div>
           <small className="field-hint">Frais de transport unitaires pour cette livraison.</small>
@@ -443,7 +446,7 @@ export default function ReapprovisionnerScreen() {
           <button type="button" className="cancel-btn" onClick={() => navigate(`/stock/${id}`)}>
             Annuler
           </button>
-          <button type="submit" className="submit-btn" disabled={submitting || !idEntrepot}>
+          <button type="submit" className="submit-btn" disabled={submitting || !idEntrepot || !idUniteEntree}>
             {submitting ? (
               <><LuRefreshCw className="spinning" /> Traitement...</>
             ) : (

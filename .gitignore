@@ -31,3 +31,4 @@ test.txt
 
 *.yaml
 package-lock.json
+.env

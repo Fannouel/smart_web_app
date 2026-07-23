@@ -539,7 +539,7 @@ export default function AddCommandeForm() {
               max={produit.quantite}
               value={quantite}
               onChange={(e) => setQuantite(Math.min(produit.quantite, parseInt(e.target.value) || 1))}
-              className={`quantity-input ${errors.quantite ? 'error' : ''}`}
+              className={`sales-quantity-input ${errors.quantite ? 'error' : ''}`}
             />
             <button
               type="button"

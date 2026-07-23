@@ -245,12 +245,12 @@ export default function AddProductScreen() {
         </div>
 
         <div className="input-group">
-          <label>Prix d'achat <FaEuroSign /> *</label>
+          <label>Prix d'achat (Ar) *</label>
           <input type="number" min="0" value={form.prix} onChange={e => handleChange('prix', e.target.value)} placeholder="Prix d'achat" required />
         </div>
 
         <div className="input-group">
-          <label>Prix de vente <FaEuroSign /></label>
+          <label>Prix de vente (Ar)</label>
           <input type="number" min="0" value={form.vente} onChange={e => handleChange('vente', e.target.value)} placeholder="Prix de vente (optionnel)" />
         </div>
 

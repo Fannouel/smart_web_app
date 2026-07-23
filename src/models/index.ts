@@ -54,7 +54,16 @@ export interface Produit {
     Stock: Stock[]
 }
 
-export interface ProduitById{
+export interface Unite {
+  id: number;
+  nom_unite: string;
+  symbol: string;
+  type: string;
+  base_unit: string;
+  valeur_conversion: number;
+}
+
+export interface ProduitById {
     id: number,
     numero: string,
     nom: string,
@@ -62,6 +71,8 @@ export interface ProduitById{
     prixVente: number,
     quantite: number
     type: string,
+    idUnite: number,       // ✅ ajouté
+    unite: Unite,          // ✅ ajouté
     transactions: Transaction[],
     commandes: Commande[]
     Stock: Stock[]

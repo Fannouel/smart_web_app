@@ -28,9 +28,9 @@ interface ProductData {
 // Seuls ces champs sont modifiables via PATCH
 interface UpdatePayload {
   nom: string;
-  prix: number;
+  prixAchat: number;
   type: string;
-  vente: number;
+  prixVente: number;
   finalite: 'VENTE' | 'MATIERE_PREMIERE';
   paiement: 'CASH' | 'CREDIT' | 'BANK' | 'MOBILE_MONEY' | 'CHECK';
 }
@@ -49,15 +49,15 @@ export default function UpdateProductScreen() {
   const [formData, setFormData] = useState<{
     nom: string;
     type: string;
-    prix: string;
-    vente: string;
+    prixAchat: string;
+    prixVente: string;
     finalite: 'VENTE' | 'MATIERE_PREMIERE';
     paiement: 'CASH' | 'CREDIT' | 'BANK' | 'MOBILE_MONEY' | 'CHECK';
   }>({
     nom: '',
     type: '',
-    prix: '',
-    vente: '',
+    prixAchat: '',
+    prixVente: '',
     finalite: 'VENTE',
     paiement: 'CASH',
   });
@@ -77,8 +77,8 @@ export default function UpdateProductScreen() {
         setFormData({
           nom: data.nom || '',
           type: data.type || '',
-          prix: data.prixAchat?.toString() || '',
-          vente: data.prixVente?.toString() || '',
+          prixAchat: data.prixAchat?.toString() || '',
+          prixVente: data.prixVente?.toString() || '',
           finalite: data.finalite || 'VENTE',
           paiement: data.paiement || 'CASH',
         });
@@ -98,9 +98,9 @@ export default function UpdateProductScreen() {
   const isFormValid = () =>
     formData.nom.trim() !== '' &&
     formData.type.trim() !== '' &&
-    formData.prix.trim() !== '' &&
-    !isNaN(Number(formData.prix)) &&
-    Number(formData.prix) >= 0;
+    formData.prixAchat.trim() !== '' &&
+    !isNaN(Number(formData.prixAchat)) &&
+    Number(formData.prixAchat) >= 0;
 
   // ── Soumission ──
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,9 +115,9 @@ export default function UpdateProductScreen() {
       // ✅ Payload aligné sur ProduitUpdateInput — PAS de quantite
       const payload: UpdatePayload = {
         nom: formData.nom,
-        prix: Number(formData.prix),
+        prixAchat: Number(formData.prixAchat),
         type: formData.type,
-        vente: Number(formData.vente) || 0,
+        prixVente: Number(formData.prixVente) || 0,
         finalite: formData.finalite,
         paiement: formData.paiement,
       };
@@ -161,7 +161,7 @@ export default function UpdateProductScreen() {
   );
 
   const PAYMENT_OPTIONS = ['CASH', 'CREDIT', 'BANK', 'MOBILE_MONEY', 'CHECK'] as const;
-  const margeUnitaire = (Number(formData.vente) || 0) - (Number(formData.prix) || 0);
+  const margeUnitaire = (Number(formData.prixVente) || 0) - (Number(formData.prixAchat) || 0);
 
   return (
     <div className="update-product-container">
@@ -214,20 +214,20 @@ export default function UpdateProductScreen() {
               <label htmlFor="prix"><LuDollarSign className="input-icon" /> Prix d'achat (Ar)</label>
               <input
                 type="number" id="prix" min="0" step="100"
-                value={formData.prix}
-                onChange={e => handleChange('prix', e.target.value)}
+                value={formData.prixAchat}
+                onChange={e => handleChange('prixAchat', e.target.value)}
                 placeholder="0"
-                className={(!formData.prix || Number(formData.prix) < 0) && error ? 'error' : ''}
+                className={(!formData.prixAchat || Number(formData.prixAchat) < 0) && error ? 'error' : ''}
               />
             </div>
 
             {/* Prix de vente */}
             <div className="form-group">
-              <label htmlFor="vente"><LuDollarSign className="input-icon" /> Prix de vente (Ar)</label>
+              <label htmlFor="prixVente"><LuDollarSign className="input-icon" /> Prix de vente (Ar)</label>
               <input
-                type="number" id="vente" min="0" step="100"
-                value={formData.vente}
-                onChange={e => handleChange('vente', e.target.value)}
+                type="number" id="prixVente" min="0" step="100"
+                value={formData.prixVente}
+                onChange={e => handleChange('prixVente', e.target.value)}
                 placeholder="0"
               />
             </div>
@@ -306,7 +306,7 @@ export default function UpdateProductScreen() {
             <div className="stat-item">
               <span className="stat-label">Valeur du stock</span>
               <span className="stat-value">
-                {((product?.quantite || 0) * (Number(formData.prix) || 0)).toLocaleString()} Ar
+                {((product?.quantite || 0) * (Number(formData.prixAchat) || 0)).toLocaleString()} Ar
               </span>
             </div>
             <div className="stat-item">

@@ -268,7 +268,7 @@
   cursor: not-allowed;
 }
 
-.quantity-input {
+.sales-quantity-input {
   width: 80px;
   height: 40px;
   text-align: center;
@@ -279,11 +279,11 @@
   outline: none;
 }
 
-.quantity-input:focus {
+.sales-quantity-input:focus {
   border-color: #05aa65;
 }
 
-.quantity-input.error {
+.sales-quantity-input.error {
   border-color: #dc3545;
 }
 
